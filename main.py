@@ -100,8 +100,8 @@ def drawWall(x1: int, x2: int, b1: int, b2: int, t1: int, t2: int) -> None:
     for x in range(x1, x2):
         y1: int = dyb * (x - xs + 0.5) / dx + b1
         y2: int = dyt * (x - xs + 0.5) / dx + t1
-        pixel(x, y1, 0)
-        pixel(x, y2, 0)
+        for y in range(int(y1), int(y2)):
+            pixel(x, y, 0)
 
 def draw3D() -> None:
     wx = [0] * 4
