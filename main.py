@@ -13,6 +13,7 @@ PGSH       = int(SH*pixelScale)          #PyGame window height
 
 class keys:
     w, s, a, d = (0, 0, 0, 0)
+    su, sd = (0, 0)
     m = 0
 
 K = keys()
@@ -63,6 +64,12 @@ def movePlayer() -> None:
     if K.s == 1 and K.m == 0:
         P.x -= dx
         P.y -= dy
+
+    if K.su == 1 and K.m == 0:
+        P.z += 4
+
+    if K.sd == 1 and K.m == 0:
+        P.z -= 4
         
     if K.a == 1 and K.m == 1:
         P.a -= 4
@@ -83,6 +90,19 @@ def clearBackground() -> None:
         for x in range(SW):
             pixel(x, y, 8)
 
+def drawWall(x1: int, x2: int, b1: int, b2: int, t1: int, t2: int) -> None:
+    x, y = (0, 0)
+    dyb: int = b2-b1
+    dyt: int = t2-t1
+    dx: int  = x2-x1
+    if dx == 0: dx = 1
+    xs: int = x1
+    for x in range(x1, x2):
+        y1: int = dyb * (x - xs + 0.5) / dx + b1
+        y2: int = dyt * (x - xs + 0.5) / dx + t1
+        pixel(x, y1, 0)
+        pixel(x, y2, 0)
+
 def draw3D() -> None:
     wx = [0] * 4
     wy = [0] * 4
@@ -101,14 +121,20 @@ def draw3D() -> None:
     # world X position
     wx[0] = x1 * CS - y1 * SN
     wx[1] = x2 * CS - y2 * SN
+    wx[2] = wx[0]
+    wx[3] = wx[1]
 
     # world Y position
     wy[0] = y1 * CS + x1 * SN
     wy[1] = y2 * CS + x2 * SN
+    wy[2] = wy[0]
+    wy[3] = wy[1]
 
     # world Z height
     wz[0] = -P.z + ((P.l * wy[0]) / 32.0)
     wz[1] = -P.z + ((P.l * wy[1]) / 32.0)
+    wz[2] = wz[0] + 40
+    wz[3] = wz[1] + 40
 
     # screen X, screen Y position
     wx[0] = wx[0] * 200 / wy[0] + SW2
@@ -117,11 +143,13 @@ def draw3D() -> None:
     wx[1] = wx[1] * 200 / wy[1] + SW2
     wy[1] = wz[1] * 200 / wy[1] + SH2
 
-    # draw points
-    # if wx[0] > 0 and wx[0] < SW and wy[0] > 0 and wy[0] < SH:
-    pixel(int(wx[0]), int(wy[0]), 0)
-    # if wx[1] > 0 and wx[1] < SW and wy[1] > 0 and wy[1] < SH:
-    pixel(int(wx[1]), int(wy[1]), 0)
+    wx[2] = wx[2] * 200 / wy[2] + SW2
+    wy[2] = wz[2] * 200 / wy[2] + SH2
+
+    wx[3] = wx[3] * 200 / wy[3] + SW2
+    wy[3] = wz[3] * 200 / wy[3] + SH2
+
+    drawWall(int(wx[0]), int(wx[1]), int(wy[0]), int(wy[1]), int(wy[2]), int(wy[3]))
 
 def display() -> None:
     clearBackground()
@@ -137,6 +165,8 @@ def keysDown(key):
     if key == pygame.K_s: K.s = 1
     if key == pygame.K_a: K.a = 1
     if key == pygame.K_d: K.d = 1
+    if key == pygame.K_e: K.su = 1
+    if key == pygame.K_q: K.sd = 1
     if key == pygame.K_m: K.m = 1
 
 def keysUp(key):
@@ -144,6 +174,8 @@ def keysUp(key):
     if key == pygame.K_s: K.s = 0
     if key == pygame.K_a: K.a = 0
     if key == pygame.K_d: K.d = 0
+    if key == pygame.K_e: K.su = 0
+    if key == pygame.K_q: K.sd = 0
     if key == pygame.K_m: K.m = 0
 
 def init():
