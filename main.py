@@ -17,6 +17,12 @@ class keys:
 
 K = keys()
 
+class maths:
+    cos = [0.0] * 360
+    sin = [0.0] * 360
+
+M = maths()
+
 def pixel(x: int, y: int, c: int) -> None:
     rgb = [0, 0, 0]
     if c == 0: rgb[0] = 255; rgb[1] = 255; rgb[2] =   0  # Yellow
@@ -84,11 +90,18 @@ def keysUp(key):
     if key == pygame.K_d: K.d = 0
     if key == pygame.K_m: K.m = 0
 
+def init():
+    for x in range(360):
+        M.cos[x] = math.cos(math.radians(x))
+        M.sin[x] = math.sin(math.radians(x))
+
 # Set up PyGame
 pygame.init()
 pygame.display.set_caption("Droom")
 screen = pygame.display.set_mode((PGSW, PGSH))
 clock = pygame.time.Clock()
+
+init()
 
 running = True
 
