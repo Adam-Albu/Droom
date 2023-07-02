@@ -90,6 +90,18 @@ def clearBackground() -> None:
         for x in range(SW):
             pixel(x, y, 8)
 
+def clipBehindPlayer(x1: int, y1: int, z1: int, x2: int, y2: int, z2: int) -> None:
+    da: float = y1
+    db: float = y2
+    d: float = da - db
+    s: float = da / d
+    x1 = x1 + s * (x2 - x1)
+    y1 = y1 + s * (y2 - y1)
+    if y1 == 0: y1 = 1
+    z1 = z1 + s * (z2 - z1)
+    return x1, y1, z1
+
+
 def drawWall(x1: int, x2: int, b1: int, b2: int, t1: int, t2: int) -> None:
     x, y = (0, 0)
     dyb: int = b2-b1
@@ -97,9 +109,21 @@ def drawWall(x1: int, x2: int, b1: int, b2: int, t1: int, t2: int) -> None:
     dx: int  = x2-x1
     if dx == 0: dx = 1
     xs: int = x1
+    # CLIP X
+    #!: The 1 will clip one pixel from the screen, so the clip is visible
+    if x1 < 1: x1 = 1
+    if x2 < 1: x2 = 1
+    if x1 > SW-1: x1 = SW-1
+    if x2 > SW-1: x2 = SW-1
     for x in range(x1, x2):
         y1: int = dyb * (x - xs + 0.5) / dx + b1
         y2: int = dyt * (x - xs + 0.5) / dx + t1
+
+        # CLIP Y
+        if y1 < 1: y1 = 1
+        if y2 < 1: y2 = 1
+        if y1 > SH-1: y1 = SH-1
+        if y2 > SH-1: y2 = SH-1
         for y in range(int(y1), int(y2)):
             pixel(x, y, 0)
 
@@ -135,6 +159,17 @@ def draw3D() -> None:
     wz[1] = -P.z + ((P.l * wy[1]) / 32.0)
     wz[2] = wz[0] + 40
     wz[3] = wz[1] + 40
+
+    # don't draw if behind player
+    if wy[0] < 1 and wy[1] < 1: return
+    # point 1 is behind player, clip
+    if wy[0] < 1:
+        wx[0], wy[0], wz[0] = clipBehindPlayer(wx[0], wy[0], wz[0], wx[1], wy[1], wz[1])
+        wx[2], wy[2], wz[2] = clipBehindPlayer(wx[2], wy[2], wz[2], wx[3], wy[3], wz[3])
+    # point 2 is behind player, clip
+    if wy[1] < 1:
+        wx[1], wy[1], wz[1] = clipBehindPlayer(wx[1], wy[1], wz[1], wx[0], wy[0], wz[0])
+        wx[3], wy[3], wz[3] = clipBehindPlayer(wx[3], wy[3], wz[3], wx[2], wy[2], wz[2])
 
     # screen X, screen Y position
     wx[0] = wx[0] * 200 / wy[0] + SW2
