@@ -23,6 +23,13 @@ class maths:
 
 M = maths()
 
+class player:
+    x, y, z = (0, 0, 0)
+    a = 0
+    l = 0
+
+P = player()
+
 def pixel(x: int, y: int, c: int) -> None:
     rgb = [0, 0, 0]
     if c == 0: rgb[0] = 255; rgb[1] = 255; rgb[2] =   0  # Yellow
@@ -38,15 +45,37 @@ def pixel(x: int, y: int, c: int) -> None:
     pygame.draw.rect(screen, pygame.Color(rgb[0], rgb[1], rgb[2]), pygame.Rect(x*pixelScale, y*pixelScale, pixelScale, pixelScale))
 
 def movePlayer() -> None:
-    if K.a == 1 and K.m == 0: print("left")
-    if K.d == 1 and K.m == 0: print("right")
-    if K.w == 1 and K.m == 0: print("up")
-    if K.s == 1 and K.m == 0: print("down")
+    dx: int = M.sin[P.a] * 10.0
+    dy: int = M.cos[P.a] * 10.0
 
-    if K.a == 1 and K.m == 1: print("look left")
-    if K.d == 1 and K.m == 1: print("look right")
-    if K.w == 1 and K.m == 1: print("look up")
-    if K.s == 1 and K.m == 1: print("look down")
+    if K.a == 1 and K.m == 0:
+        P.x -= dx
+        P.y += dx
+    
+    if K.d == 1 and K.m == 0:
+        P.x += dx
+        P.y -= dx
+
+    if K.w == 1 and K.m == 0:
+        P.x += dx
+        P.y += dy
+    if K.s == 1 and K.m == 0:
+        P.x -= dx
+        P.y -= dy
+        
+    if K.a == 1 and K.m == 0:
+        P.a -= 4
+        if P.a < 0: P.a += 360
+    
+    if K.d == 1 and K.m == 0:
+        P.a += 4
+        if P.a > 359: P.a -= 360
+    
+    if K.w == 1 and K.m == 1:
+        P.z -= 4
+
+    if K.s == 1 and K.m == 1:
+        P.z += 4
 
 def clearBackground() -> None:
     for y in range(SH):
@@ -94,6 +123,12 @@ def init():
     for x in range(360):
         M.cos[x] = math.cos(math.radians(x))
         M.sin[x] = math.sin(math.radians(x))
+
+    P.x = 70
+    P.y = -110
+    P.z = 20
+    P.a = 0
+    P.l = 0
 
 # Set up PyGame
 pygame.init()
