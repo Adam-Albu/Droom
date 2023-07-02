@@ -49,52 +49,79 @@ def movePlayer() -> None:
     dy: int = M.cos[P.a] * 10.0
 
     if K.a == 1 and K.m == 0:
-        P.x -= dx
+        P.x -= dy
         P.y += dx
     
     if K.d == 1 and K.m == 0:
-        P.x += dx
+        P.x += dy
         P.y -= dx
 
     if K.w == 1 and K.m == 0:
         P.x += dx
         P.y += dy
+    
     if K.s == 1 and K.m == 0:
         P.x -= dx
         P.y -= dy
         
-    if K.a == 1 and K.m == 0:
+    if K.a == 1 and K.m == 1:
         P.a -= 4
         if P.a < 0: P.a += 360
     
-    if K.d == 1 and K.m == 0:
+    if K.d == 1 and K.m == 1:
         P.a += 4
         if P.a > 359: P.a -= 360
     
     if K.w == 1 and K.m == 1:
-        P.z -= 4
+        P.l -= 4
 
     if K.s == 1 and K.m == 1:
-        P.z += 4
+        P.l += 4
 
 def clearBackground() -> None:
     for y in range(SH):
         for x in range(SW):
             pixel(x, y, 8)
 
-tick: int = 0
-
 def draw3D() -> None:
-    global tick
-    x, y, c = (0, 0, 0)
-    for y in range(SH2):
-        for x in range(SW2):
-            pixel(x, y, c)
-            c += 1
-            if c > 8: c = 0
-    tick += 1
-    if tick > 20: tick = 0
-    pixel(SW2, SH2+tick, 0)
+    wx = [0] * 4
+    wy = [0] * 4
+    wz = [0] * 4
+
+    CS = M.cos[P.a]
+    SN = M.sin[P.a]
+
+    # offset bottom two points by player
+    x1 = 40 - P.x
+    y1 = 10 - P.y
+
+    x2 = 40 - P.x
+    y2 = 290 - P.y
+
+    # world X position
+    wx[0] = x1 * CS - y1 * SN
+    wx[1] = x2 * CS - y2 * SN
+
+    # world Y position
+    wy[0] = y1 * CS + x1 * SN
+    wy[1] = y2 * CS + x2 * SN
+
+    # world Z height
+    wz[0] = -P.z + ((P.l * wy[0]) / 32.0)
+    wz[1] = -P.z + ((P.l * wy[1]) / 32.0)
+
+    # screen X, screen Y position
+    wx[0] = wx[0] * 200 / wy[0] + SW2
+    wy[0] = wz[0] * 200 / wy[0] + SH2
+
+    wx[1] = wx[1] * 200 / wy[1] + SW2
+    wy[1] = wz[1] * 200 / wy[1] + SH2
+
+    # draw points
+    # if wx[0] > 0 and wx[0] < SW and wy[0] > 0 and wy[0] < SH:
+    pixel(int(wx[0]), int(wy[0]), 0)
+    # if wx[1] > 0 and wx[1] < SW and wy[1] > 0 and wy[1] < SH:
+    pixel(int(wx[1]), int(wy[1]), 0)
 
 def display() -> None:
     clearBackground()
